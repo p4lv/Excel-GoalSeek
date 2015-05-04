@@ -1,17 +1,22 @@
 {
-    "name": "league/:package_name",
-    "description": ":package_description",
+    "name": "davidjr82/PHP-Excel-GoalSeek",
+    "description": "Utility to emulate goalseek function in PHP",
     "keywords": [
-        "league",
-        ":package_name"
+        "edatta",
+        "e-datta",
+        "davidjr82",
+        "PHP-Excel-GoalSeek",
+        "php",
+        "excel",
+        "goalseek"
     ],
-    "homepage": "https://github.com/thephpleague/:package_name",
+    "homepage": "https://github.com/davidjr82/PHP-Excel-GoalSeek",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": ":author_email",
-            "homepage": ":author_website",
+            "name": "David Jiménez",
+            "email": "djimenez@e-datta.com",
+            "homepage": "http://e-datta.com",
             "role": "Developer"
         }
     ],
@@ -24,12 +29,12 @@
     },
     "autoload": {
         "psr-4": {
-            "League\\Skeleton\\": "src"
+            "davidjr82\\PHPExcelGoalSeek\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "League\\Skeleton\\Test\\": "tests"
+            "davidjr82\\PHPExcelGoalSeek\\Test\\": "tests"
         }
     },
     "extra": {

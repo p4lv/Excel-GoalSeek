@@ -1,6 +1,6 @@
 # Changelog
 
-All Notable changes to `:package_name` will be documented in this file
+All Notable changes to `PHP-Excel-GoalSeek` will be documented in this file
 
 ## NEXT - YYYY-MM-DD
 
