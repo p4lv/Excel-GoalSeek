@@ -40,6 +40,18 @@ $expected_result = 300;
 
 //Calculate the input to get you goal, with accuracy
 $input = $goalseek->calculate('callbackTest', $expected_result, 5);
+
+//Voilá!
+echo "\$input: " . $input . "<br />";
+
+//Let's test our input it is close
+$actual_result = $goalseek->callbackTest($input);
+//Searched result of function
+echo "Searched result of callbackTest(\$input) = " . $expected_result . "<br />";
+//Actual result of function with calculated goalseek
+echo "Actual result of callbackTest(" . $input . ") = " . $actual_result . "<br />";
+//If difference is too high, you can improve the class and send me it your modifications ;)
+echo "Difference = " . ($actual_result - $expected_result);
 ```
 
 ## Testing
