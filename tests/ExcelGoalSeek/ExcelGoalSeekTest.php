@@ -79,12 +79,6 @@ class ExcelGoalSeekTest extends TestCase
     }
 
 
-    public function testCalculatedNewLine()
-    {
-        // Assert
-        $this->assertEquals($this->goalseek->newLine(), '<br />');
-    }
-
     public function testException()
     {
         $this->expectException(ExcelGoalSeekException::class);
