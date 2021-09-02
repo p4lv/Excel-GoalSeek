@@ -28,10 +28,19 @@ class ExcelGoalSeek
         }
     }
 
-    public function calculate($functionGS, $goal, $decimal_places,
-                              $incremental_modifier = 1, $max_loops_round = 0, $max_loops_dec = 0,
-                              $lock_min = array('num' => null, 'goal' => null), $lock_max = array('num' => null, 'goal' => null),
-                              $slope = null, $randomized = false, $start_from = 0.1)
+    public function calculate(
+        $functionGS,
+        $goal,
+        $decimal_places,
+        $incremental_modifier = 1,
+        $max_loops_round = 0,
+        $max_loops_dec = 0,
+        $lock_min = ['num' => null, 'goal' => null],
+        $lock_max = ['num' => null, 'goal' => null],
+        $slope = null,
+        $randomized = false,
+        $start_from = 0.1
+    )
     {
         if (empty($functionGS)) {
             throw new ExcelGoalSeekException('Function callback expected');
@@ -74,47 +83,8 @@ class ExcelGoalSeek
                     );
 
                     //Like when I look without decimals
-                    if ($aux_obj == $goal) {
-                        $lock_min['num'] = $aux_obj_num;
-                        $lock_min['goal'] = $aux_obj;
-
-                        $lock_max['num'] = $aux_obj_num;
-                        $lock_max['goal'] = $aux_obj;
-                    }
-
-                    $going_up = false;
-                    $going_down = false;
-                    if ($aux_obj < $goal) {
-                        $going_up = true;
-                    }
-                    if ($aux_obj > $goal) {
-                        $going_up = false;
-                    }
-                    if ($slope == -1) {
-                        $going_up = !$going_up;
-                    }
-
-                    if ($going_up) {
-                        if ($lock_min['num'] !== null && $aux_obj_num < $lock_min['num']) {
-                            $lock_max['num'] = $lock_min['num'];
-                            $lock_max['goal'] = $lock_min['goal'];
-                        }
-
-                        $lock_min['num'] = $aux_obj_num;
-                        $lock_min['goal'] = $aux_obj;
-                    }
-
-                    if (!$going_up) {
-                        if ($lock_max['num'] !== null && $lock_max['num'] < $aux_obj_num) {
-                            $lock_min['num'] = $lock_max['num'];
-                            $lock_min['goal'] = $lock_max['goal'];
-                        }
-
-                        $lock_max['num'] = $aux_obj_num;
-                        $lock_max['goal'] = $aux_obj;
-                    }
+                    [$lock_min, $lock_max] = $this->lookWithoutDecimals($aux_obj, $goal, $aux_obj_num, $lock_min, $lock_max, $slope);
                     //End Like when I look without decimals
-
                     $difference = abs(round(abs($lock_max['num']), $decimal) - round(abs($lock_min['num']), $decimal));
                 }//End while
             }//End foreach
@@ -176,45 +146,7 @@ class ExcelGoalSeek
         //Test if formule can give me non valid values, i.e.: sqrt of negative value
         if (!is_nan($aux_obj)) {
             //Is goal without decimals?
-            if ($aux_obj == $goal) {
-                $lock_min['num'] = $aux_obj_num;
-                $lock_min['goal'] = $aux_obj;
-
-                $lock_max['num'] = $aux_obj_num;
-                $lock_max['goal'] = $aux_obj;
-            }
-
-            $going_up = false;
-            $going_down = false;
-            if ($aux_obj < $goal) {
-                $going_up = true;
-            }
-            if ($aux_obj > $goal) {
-                $going_up = false;
-            }
-            if ($slope == -1) {
-                $going_up = !$going_up;
-            }
-
-            if ($going_up) {
-                if ($lock_min['num'] !== null && $aux_obj_num < $lock_min['num']) {
-                    $lock_max['num'] = $lock_min['num'];
-                    $lock_max['goal'] = $lock_min['goal'];
-                }
-
-                $lock_min['num'] = $aux_obj_num;
-                $lock_min['goal'] = $aux_obj;
-            }
-
-            if (!$going_up) {
-                if ($lock_max['num'] !== null && $lock_max['num'] < $aux_obj_num) {
-                    $lock_min['num'] = $lock_max['num'];
-                    $lock_min['goal'] = $lock_max['goal'];
-                }
-
-                $lock_max['num'] = $aux_obj_num;
-                $lock_max['goal'] = $aux_obj;
-            }
+            list($lock_min, $lock_max) = $this->lookWithoutDecimals($aux_obj, $goal, $aux_obj_num, $lock_min, $lock_max, $slope);
         } else {
             if (($lock_min['num'] === null && $lock_max['num'] === null) || $randomized) {
                 $nuevo_start_from = random_int(-500, 500);
@@ -233,5 +165,48 @@ class ExcelGoalSeek
         }
 
         return $this->calculate($functionGS, $goal, $decimal_places, $incremental_modifier, $max_loops_round, $max_loops_dec, $lock_min, $lock_max, $slope, $randomized, $start_from);
+    }
+
+    private function lookWithoutDecimals($aux_obj, $goal, $aux_obj_num, $lock_min, $lock_max, $slope): array
+    {
+        if ($aux_obj == $goal) {
+            $lock_min['num'] = $aux_obj_num;
+            $lock_min['goal'] = $aux_obj;
+
+            $lock_max['num'] = $aux_obj_num;
+            $lock_max['goal'] = $aux_obj;
+        }
+
+        $going_up = false;
+        if ($aux_obj < $goal) {
+            $going_up = true;
+        }
+        if ($aux_obj > $goal) {
+            $going_up = false;
+        }
+        if ($slope == -1) {
+            $going_up = !$going_up;
+        }
+
+        if ($going_up) {
+            if ($lock_min['num'] !== null && $aux_obj_num < $lock_min['num']) {
+                $lock_max['num'] = $lock_min['num'];
+                $lock_max['goal'] = $lock_min['goal'];
+            }
+
+            $lock_min['num'] = $aux_obj_num;
+            $lock_min['goal'] = $aux_obj;
+        }
+
+        if (!$going_up) {
+            if ($lock_max['num'] !== null && $lock_max['num'] < $aux_obj_num) {
+                $lock_min['num'] = $lock_max['num'];
+                $lock_min['goal'] = $lock_max['goal'];
+            }
+
+            $lock_max['num'] = $aux_obj_num;
+            $lock_max['goal'] = $aux_obj;
+        }
+        return [$lock_min, $lock_max];
     }
 }
