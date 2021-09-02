@@ -23,7 +23,7 @@ class ExcelGoalSeek
 
     private function debug($message, array $context = []): void
     {
-        if($this->debugEnabled) {
+        if ($this->debugEnabled) {
             $this->logger->debug($message, $context);
         }
     }
@@ -79,7 +79,7 @@ class ExcelGoalSeek
                     $aux_obj = $this->$functionGS($aux_obj_num);
 
                     $this->debug(
-                    'Decimal iteration ' . $max_loops_dec . '; min value = ' . $lock_min['num'] . '; max value = ' . $lock_max['num'] . '; value ' . $aux_obj
+                        'Decimal iteration ' . $max_loops_dec . '; min value = ' . $lock_min['num'] . '; max value = ' . $lock_max['num'] . '; value ' . $aux_obj
                     );
 
                     //Like when I look without decimals
@@ -128,7 +128,7 @@ class ExcelGoalSeek
             $this->debug('Testing ' . $aux_obj_num . ' with value ' . $aux_obj);
         } else {
             $aux_obj = $this->$functionGS($aux_obj_num);
-            $this->debug('Testing (with initial value) ' . $aux_obj_num . ' with value ' . $aux_obj );
+            $this->debug('Testing (with initial value) ' . $aux_obj_num . ' with value ' . $aux_obj);
         }
 
         if ($slope == null) {
