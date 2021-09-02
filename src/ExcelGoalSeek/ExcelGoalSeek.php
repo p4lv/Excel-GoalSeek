@@ -100,7 +100,7 @@ class ExcelGoalSeek
         }
 
         //First iteration, try with zero
-        $aux_obj_num = $this->getAux_obj_num($lock_min['num'], $lock_max['num'], $start_from, $incremental_modifier);
+        $aux_obj_num = $this->getAuxObjNum($lock_min['num'], $lock_max['num'], $start_from, $incremental_modifier);
 
         $aux_obj = $this->$functionGS($aux_obj_num);
 
@@ -192,7 +192,7 @@ class ExcelGoalSeek
      * @param $incremental_modifier
      * @return float|int|mixed
      */
-    private function getAux_obj_num($lockMinNum, $lockMaxNum, $start_from, $incremental_modifier)
+    private function getAuxObjNum($lockMinNum, $lockMaxNum, $start_from, $incremental_modifier)
     {
         $aux_obj_num = null;
         if ($lockMinNum === null && $lockMaxNum === null) {
