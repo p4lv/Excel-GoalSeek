@@ -18,6 +18,10 @@
             "email": "djimenez@e-datta.com",
             "homepage": "http://e-datta.com",
             "role": "Developer"
+        },
+        {
+            "name": "Romans Shvets",
+            "email": "pomaxa@gmail.com"
         }
     ],
     "require": {
@@ -36,11 +40,6 @@
     "autoload-dev": {
         "psr-4": {
             "P4lv\\": "tests"
-        }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.0-dev"
         }
     }
 }
