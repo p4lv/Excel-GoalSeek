@@ -32,19 +32,17 @@ jobs:
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
 
+    # - name: Run test suite
+    #   run: composer run-script test
+    - name: Run PHPUnit tests
+      run: export XDEBUG_MODE=coverage && ./vendor/bin/phpunit --configuration=phpunit.xml.dist --coverage-clover ./build/coverage/log/coverage.xml
+      
+      
       # For code coverage report we are uploading our code coverage report to scrutinizer
     - name: Downloading scrutinizer ocular.phar
       run: wget https://scrutinizer-ci.com/ocular.phar
-
-      # - name: Run test suite
-    #   run: composer run-script test
-    - name: Run PHPUnit tests
-      run: export XDEBUG_MODE=coverage && ./vendor/bin/phpunit --configuration=phpunit.xml.dist --coverage-clover ./build/coverage/log/coverage.xml && php ocular.phar code-coverage:upload --repository=g/p4lv/Excel-GoalSeek --format=php-clover ./build/coverage/log/coverage.xml
-      
-      
-
       
       # Uploading reports for analysis
-#    - name: Uploading code coverage to scrutinize
-#      run: php ocular.phar code-coverage:upload --repository=g/p4lv/Excel-GoalSeek --format=php-clover ./build/coverage/log/coverage.xml
+    - name: Uploading code coverage to scrutinize
+      run: php ocular.phar code-coverage:upload --format=php-clover ./build/coverage/log/coverage.xml
 #      run: php ocular.phar code-coverage:upload --format=php-clover ./build/coverage/log/coverage.xml
