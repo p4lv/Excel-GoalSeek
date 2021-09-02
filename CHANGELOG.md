@@ -1,20 +1,10 @@
 # Changelog
 
-All Notable changes to `PHP-Excel-GoalSeek` will be documented in this file
+All Notable changes to `Excel-GoalSeek` will be documented in this file
 
-## NEXT - YYYY-MM-DD
+## 2021-09-02
 
-### Added
-- Nothing
+- migrated to different namespace.
+- increased min version of php
+- update to the latest phpunit
 
-### Deprecated
-- Nothing
-
-### Fixed
-- Nothing
-
-### Removed
-- Nothing
-
-### Security
-- Nothing

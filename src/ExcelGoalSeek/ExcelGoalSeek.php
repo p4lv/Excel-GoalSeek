@@ -1,31 +1,40 @@
 <?php
 
-namespace davidjr82\PHPExcelGoalSeek;
+namespace P4lv\ExcelGoalSeek;
 
-use davidjr82\PHPExcelGoalSeek\Exceptions\PHPExcelGoalSeekException;
+use P4lv\ExcelGoalSeek\Exception\ExcelGoalSeekException;
+use P4lv\ExcelGoalSeek\Exception\GoalNeverReached;
+use P4lv\ExcelGoalSeek\Exception\GoalReachedNotEnough;
+use Psr\Log\LoggerInterface;
 
-class PHPExcelGoalSeek
+class ExcelGoalSeek
 {
-    var $debug;
+    private $debugEnabled;
+    /**
+     * @var LoggerInterface|null
+     */
+    private $logger;
 
-    public function __construct()
+    public function __construct(LoggerInterface $logger = null)
     {
-        $this->debug = false;
+        $this->debugEnabled = $logger === null ? false : true;
+        $this->logger = $logger;
     }
 
-    public function newLine() {
-        return '<br />';
+    private function debug($message, array $context = []): void
+    {
+        if($this->debugEnabled) {
+            $this->logger->debug($message, $context);
+        }
     }
 
     public function calculate($functionGS, $goal, $decimal_places,
-      $incremental_modifier = 1, $max_loops_round = 0, $max_loops_dec = 0,
-      $lock_min = array('num' => null, 'goal' => null), $lock_max = array('num' => null, 'goal' => null),
-      $slope = null, $randomized = false, $start_from = 0.1)
+                              $incremental_modifier = 1, $max_loops_round = 0, $max_loops_dec = 0,
+                              $lock_min = array('num' => null, 'goal' => null), $lock_max = array('num' => null, 'goal' => null),
+                              $slope = null, $randomized = false, $start_from = 0.1)
     {
-        $debug = $this->debug;
-
         if (empty($functionGS)) {
-            throw new PHPExcelGoalSeekException('Function callback expected');
+            throw new ExcelGoalSeekException('Function callback expected');
         }
 
         $max_loops_round++;
@@ -33,15 +42,12 @@ class PHPExcelGoalSeek
         $maximum_acceptable_difference = 0.1;//If goal found has more than this difference, return null as it is not found
 
         if ($max_loops_round > 100) {
-            if ($debug) {
-                echo 'Goal never reached'.$this->newLine();
-            }
+            $this->debug('Goal never reached');
+
             return false;
         }
 
-        if ($debug) {
-            echo 'Iteration '.$max_loops_round.'; min value = '.$lock_min['num'].'; max value = '.$lock_max['num'].'; slope '.$slope.$this->newLine();
-        }
+        $this->debug('Iteration ' . $max_loops_round . '; min value = ' . $lock_min['num'] . '; max value = ' . $lock_max['num'] . '; slope ' . $slope);
 
         //If I have the goal  limited to a unit, I seek decimals
         if ($lock_min['num'] !== null && $lock_max['num'] !== null && abs(abs($lock_max['num']) - abs($lock_min['num'])) <= 1) {
@@ -53,7 +59,7 @@ class PHPExcelGoalSeek
 
             //Seek decimals
             foreach (range(1, $decimal_places, 1) as $decimal) {
-                $decimal_step = 1 / pow(10, $decimal);
+                $decimal_step = 1 / (10 ** $decimal);
 
                 $difference = abs(round(abs($lock_max['num']), $decimal) - round(abs($lock_min['num']), $decimal));
 
@@ -63,9 +69,9 @@ class PHPExcelGoalSeek
                     $aux_obj_num = round(($lock_min['num'] + $lock_max['num']) / 2, $decimal);
                     $aux_obj = $this->$functionGS($aux_obj_num);
 
-                    if ($debug) {
-                        echo 'Decimal iteration '.$max_loops_dec.'; min value = '.$lock_min['num'].'; max value = '.$lock_max['num'].'; value '.$aux_obj.$this->newLine();
-                    }
+                    $this->debug(
+                    'Decimal iteration ' . $max_loops_dec . '; min value = ' . $lock_min['num'] . '; max value = ' . $lock_max['num'] . '; value ' . $aux_obj
+                    );
 
                     //Like when I look without decimals
                     if ($aux_obj == $goal) {
@@ -114,58 +120,45 @@ class PHPExcelGoalSeek
             }//End foreach
 
 
-        if ($max_loops_dec > 2000 * $decimal_places) {
-            if ($debug) {
-                echo 'Goal never reached'.$this->newLine();
+            if ($max_loops_dec > 2000 * $decimal_places) {
+                throw new GoalNeverReached('Goal never reached [2000]');
             }
-            return;
-        }
 
             if (!is_nan($lock_min['goal']) && abs(abs($lock_min['goal']) - abs($goal)) < $maximum_acceptable_difference) {
                 return round($lock_min['num'], $decimal_places - 1);
-            } else {
-                if ($debug) {
-                    echo 'Goal reached not enough'.$this->newLine();
-                }
-                return;
             }
+
+            throw new GoalReachedNotEnough('Goal reached not enough');
         }
 
-    //First iteration, try with zero
-    if ($lock_min['num'] === null && $lock_max['num'] === null) {
-        $aux_obj_num = $start_from;
-    }
-    //Lower limit found, searching higher limit with * 10
-    elseif ($lock_min['num'] !== null && $lock_max['num'] === null) {
-        if ($lock_min['num'] == $start_from) {
-            $aux_obj_num = 1;
-        } else {
-            $aux_obj_num = $lock_min['num'] * (10 / $incremental_modifier);
+        //First iteration, try with zero
+        if ($lock_min['num'] === null && $lock_max['num'] === null) {
+            $aux_obj_num = $start_from;
+        } //Lower limit found, searching higher limit with * 10
+        elseif ($lock_min['num'] !== null && $lock_max['num'] === null) {
+            if ($lock_min['num'] == $start_from) {
+                $aux_obj_num = 1;
+            } else {
+                $aux_obj_num = $lock_min['num'] * (10 / $incremental_modifier);
+            }
+        } //Higher limit found, searching lower limit with * -10
+        elseif ($lock_min['num'] === null && $lock_max['num'] !== null) {
+            if ($lock_max['num'] == $start_from) {
+                $aux_obj_num = -1;
+            } else {
+                $aux_obj_num = $lock_max['num'] * (10 / $incremental_modifier);
+            }
+        } //I have both limits, searching between them without decimals
+        elseif ($lock_min['num'] !== null && $lock_max['num'] !== null) {
+            $aux_obj_num = round(($lock_min['num'] + $lock_max['num']) / 2);
         }
-    }
-    //Higher limit found, searching lower limit with * -10
-    elseif ($lock_min['num'] === null && $lock_max['num'] !== null) {
-        if ($lock_max['num'] == $start_from) {
-            $aux_obj_num = -1;
-        } else {
-            $aux_obj_num = $lock_max['num'] * (10 / $incremental_modifier);
-        }
-    }
-    //I have both limits, searching between them without decimals
-    elseif ($lock_min['num'] !== null && $lock_max['num'] !== null) {
-        $aux_obj_num = round(($lock_min['num'] + $lock_max['num']) / 2);
-    }
 
         if ($aux_obj_num != $start_from) {
             $aux_obj = $this->$functionGS($aux_obj_num);
-            if ($debug) {
-                echo 'Testing '.$aux_obj_num.' with value '.$aux_obj.$this->newLine();
-            }
+            $this->debug('Testing ' . $aux_obj_num . ' with value ' . $aux_obj);
         } else {
             $aux_obj = $this->$functionGS($aux_obj_num);
-            if ($debug) {
-                echo 'Testing (with initial value) '.$aux_obj_num.' with value '.$aux_obj.$this->newLine();
-            }
+            $this->debug('Testing (with initial value) ' . $aux_obj_num . ' with value ' . $aux_obj );
         }
 
         if ($slope == null) {
@@ -224,9 +217,9 @@ class PHPExcelGoalSeek
             }
         } else {
             if (($lock_min['num'] === null && $lock_max['num'] === null) || $randomized) {
-                $nuevo_start_from = rand(-500, 500);
+                $nuevo_start_from = random_int(-500, 500);
 
-                return $this->calculate($functionGS, $goal, $decimal_places, $incremental_modifier + 1, $max_loops_round, $max_loops_dec, $lock_min, $lock_max, $slope, true, $nuevo_start_from, $debug);
+                return $this->calculate($functionGS, $goal, $decimal_places, $incremental_modifier + 1, $max_loops_round, $max_loops_dec, $lock_min, $lock_max, $slope, true, $nuevo_start_from);
             } //First iteration is null
 
             if ($lock_min['num'] !== null && abs(abs($aux_obj_num) - abs($lock_min['num'])) < 1) {
@@ -236,9 +229,9 @@ class PHPExcelGoalSeek
                 $lock_min['num'] = $aux_obj_num;
             }
 
-            return $this->calculate($functionGS, $goal, $decimal_places, $incremental_modifier + 1, $max_loops_round, $max_loops_dec, $lock_min, $lock_max, $slope, $randomized, $start_from, $debug);
+            return $this->calculate($functionGS, $goal, $decimal_places, $incremental_modifier + 1, $max_loops_round, $max_loops_dec, $lock_min, $lock_max, $slope, $randomized, $start_from);
         }
 
-        return $this->calculate($functionGS, $goal, $decimal_places, $incremental_modifier, $max_loops_round, $max_loops_dec, $lock_min, $lock_max, $slope, $randomized, $start_from, $debug);
+        return $this->calculate($functionGS, $goal, $decimal_places, $incremental_modifier, $max_loops_round, $max_loops_dec, $lock_min, $lock_max, $slope, $randomized, $start_from);
     }
 }

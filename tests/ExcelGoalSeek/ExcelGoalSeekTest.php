@@ -1,11 +1,11 @@
 <?php
 
-namespace davidjr82\PHPExcelGoalSeek\Test;
+namespace P4lv\ExcelGoalSeek;
 
-use davidjr82\PHPExcelGoalSeek\PHPExcelGoalSeek;
-use davidjr82\PHPExcelGoalSeek\Exceptions\PHPExcelGoalSeekException;
+use P4lv\ExcelGoalSeek\Exception\ExcelGoalSeekException;
+use PHPUnit\Framework\TestCase;
 
-class GoalSeek extends \davidjr82\PHPExcelGoalSeek\PHPExcelGoalSeek {
+class GoalSeek extends ExcelGoalSeek {
 
     function callbackTest($input) {
         $inputForCallbackTest2 = $input * 8;
@@ -27,17 +27,17 @@ class GoalSeek extends \davidjr82\PHPExcelGoalSeek\PHPExcelGoalSeek {
 
 }
 
-class PHPExcelGoalSeekTest extends \PHPUnit_Framework_TestCase
+class ExcelGoalSeekTest extends TestCase
 {
 
     protected $goalseek;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->goalseek = new GoalSeek();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         unset($this->goalseek);
     }
@@ -85,12 +85,9 @@ class PHPExcelGoalSeekTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($this->goalseek->newLine(), '<br />');
     }
 
-    /**
-     * @expectedException davidjr82\PHPExcelGoalSeek\Exceptions\PHPExcelGoalSeekException
-     */
     public function testException()
     {
+        $this->expectException(ExcelGoalSeekException::class);
         $this->goalseek->calculate('', 0, 0);
-        $this->setExpectedException();
     }
 }
