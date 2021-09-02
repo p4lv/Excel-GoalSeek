@@ -35,7 +35,7 @@ jobs:
     # - name: Run test suite
     #   run: composer run-script test
     - name: Run PHPUnit tests
-      run: ./vendor/bin/phpunit --configuration=phpunit.xml.dist --coverage-clover ./build/coverage/log/coverage.xml
+      run: export XDEBUG_MODE=coverage && ./vendor/bin/phpunit --configuration=phpunit.xml.dist --coverage-clover ./build/coverage/log/coverage.xml
       
       
       # For code coverage report we are uploading our code coverage report to scrutinizer
@@ -44,4 +44,5 @@ jobs:
       
       # Uploading reports for analysis
     - name: Uploading code coverage to scrutinize
-      run: php ocular.phar code-coverage:upload --format=php-clover ./build/coverage/log/coverage.xml
+      run: php ocular.phar code-coverage:upload --repository=g/p4lv/Excel-GoalSeek --format=php-clover ./build/coverage/log/coverage.xml
+#      run: php ocular.phar code-coverage:upload --format=php-clover ./build/coverage/log/coverage.xml
