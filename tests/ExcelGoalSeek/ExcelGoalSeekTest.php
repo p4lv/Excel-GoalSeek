@@ -4,6 +4,7 @@ namespace P4lv\ExcelGoalSeek;
 
 use P4lv\ExcelGoalSeek\Exception\ExcelGoalSeekException;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 class GoalSeek extends ExcelGoalSeek {
 
@@ -66,6 +67,13 @@ class ExcelGoalSeekTest extends TestCase
     public function testCalculated($testFunction, $goalseeked, $accuracy, $expected)
     {
         // Assert
+        $this->assertEquals($this->goalseek->calculate($testFunction, $goalseeked, $accuracy), $expected);
+    }    /**
+     * @dataProvider provider
+     */
+    public function testCalculatedWithLogger($testFunction, $goalseeked, $accuracy, $expected)
+    {
+        $this->goalseek = new GoalSeek(new NullLogger());
         $this->assertEquals($this->goalseek->calculate($testFunction, $goalseeked, $accuracy), $expected);
     }
 
