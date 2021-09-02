@@ -7,6 +7,9 @@ This library is a fork of [PHP-Excel-GoalSeek](https://github.com/juanjomip/PHP-
 ## Install
 
 Use package from packagist.
+```bash
+composer require p4/excel-goalseek
+```
 
 ## Usage
 
