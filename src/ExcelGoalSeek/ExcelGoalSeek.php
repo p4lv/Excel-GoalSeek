@@ -51,9 +51,7 @@ class ExcelGoalSeek
         $maximum_acceptable_difference = 0.1;
 
         if ($max_loops_round > 100) {
-            $this->debug('Goal never reached');
-
-            return false;
+            throw new GoalNeverReached();
         }
 
         $this->debug('Iteration ' . $max_loops_round . '; min value = ' . $lock_min['num'] . '; max value = ' . $lock_max['num'] . '; slope ' . $slope);
@@ -104,15 +102,11 @@ class ExcelGoalSeek
         //First iteration, try with zero
         $aux_obj_num = $this->getAux_obj_num($lock_min['num'], $lock_max['num'], $start_from, $incremental_modifier);
 
-        if ($aux_obj_num != $start_from) {
-            $aux_obj = $this->$functionGS($aux_obj_num);
-            $this->debug('Testing ' . $aux_obj_num . ' with value ' . $aux_obj);
-        } else {
-            $aux_obj = $this->$functionGS($aux_obj_num);
-            $this->debug('Testing (with initial value) ' . $aux_obj_num . ' with value ' . $aux_obj);
-        }
+        $aux_obj = $this->$functionGS($aux_obj_num);
 
-        if ($slope == null) {
+        $this->debug('Testing (with initial value) '. ($aux_obj_num != $start_from ? '' : '(with initial value)') . $aux_obj_num . ' with value ' . $aux_obj);
+
+        if ($slope === null) {
             $aux_slope = $this->$functionGS($aux_obj_num + 0.1);
 
             if (is_nan($aux_slope) || is_nan($aux_obj)) {

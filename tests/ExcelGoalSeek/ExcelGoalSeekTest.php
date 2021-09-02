@@ -3,6 +3,7 @@
 namespace P4lv\ExcelGoalSeek;
 
 use P4lv\ExcelGoalSeek\Exception\ExcelGoalSeekException;
+use P4lv\ExcelGoalSeek\Exception\GoalNeverReached;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
@@ -82,6 +83,7 @@ class ExcelGoalSeekTest extends TestCase
      */
     public function testCalculated3($testFunction, $goalseeked, $accuracy, $expected)
     {
+        $this->expectException(GoalNeverReached::class);
         // Assert
         $this->assertEquals($this->goalseek->calculate($testFunction, $goalseeked, $accuracy), $expected);
     }
