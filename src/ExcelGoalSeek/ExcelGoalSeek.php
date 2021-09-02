@@ -54,7 +54,7 @@ class ExcelGoalSeek
             throw new GoalNeverReached();
         }
 
-        $this->debug('Iteration ' . $max_loops_round . '; min value = ' . $lock_min['num'] . '; max value = ' . $lock_max['num'] . '; slope ' . $slope);
+        $this->debug(sprintf("Iteration %d; min value = %s; max value = %s; slope %s", $max_loops_round, $lock_min['num'], $lock_max['num'], $slope));
 
         //If I have the goal  limited to a unit, I seek decimals
         if ($lock_min['num'] !== null && $lock_max['num'] !== null && abs(abs($lock_max['num']) - abs($lock_min['num'])) <= 1) {
@@ -76,9 +76,7 @@ class ExcelGoalSeek
                     $aux_obj_num = round(($lock_min['num'] + $lock_max['num']) / 2, $decimal);
                     $aux_obj = $this->$functionGS($aux_obj_num);
 
-                    $this->debug(
-                        'Decimal iteration ' . $max_loops_dec . '; min value = ' . $lock_min['num'] . '; max value = ' . $lock_max['num'] . '; value ' . $aux_obj
-                    );
+                    $this->debug(sprintf("Decimal iteration %d; min value = %s; max value = %s; value %s", $max_loops_dec, $lock_min['num'], $lock_max['num'], $aux_obj));
 
                     //Like when I look without decimals
                     [$lock_min, $lock_max] = $this->lookWithoutDecimals($aux_obj, $goal, $aux_obj_num, $lock_min, $lock_max, $slope);
@@ -104,7 +102,7 @@ class ExcelGoalSeek
 
         $aux_obj = $this->$functionGS($aux_obj_num);
 
-        $this->debug('Testing (with initial value) '. ($aux_obj_num != $start_from ? '' : '(with initial value)') . $aux_obj_num . ' with value ' . $aux_obj);
+        $this->debug(sprintf("Testing (with initial value) %s%d with value %s", $aux_obj_num != $start_from ? '' : '(with initial value)', $aux_obj_num, $aux_obj));
 
         if ($slope === null) {
             $aux_slope = $this->$functionGS($aux_obj_num + 0.1);
