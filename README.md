@@ -1,5 +1,10 @@
 # Excel-GoalSeek
 
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/p4lv/Excel-GoalSeek/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/p4lv/Excel-GoalSeek/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/p4lv/Excel-GoalSeek/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/p4lv/Excel-GoalSeek/?branch=master)
+[![Build Status](https://scrutinizer-ci.com/g/p4lv/Excel-GoalSeek/badges/build.png?b=master)](https://scrutinizer-ci.com/g/p4lv/Excel-GoalSeek/build-status/master)
+[![Code Intelligence Status](https://scrutinizer-ci.com/g/p4lv/Excel-GoalSeek/badges/code-intelligence.svg?b=master)](https://scrutinizer-ci.com/code-intelligence)
+
 Utility to emulate goalseek function in PHP. This fork was made for very specific project, and there is no promise to keep any BC. 
 
 This library is a fork of [PHP-Excel-GoalSeek](https://github.com/juanjomip/PHP-Excel-GoalSeek)

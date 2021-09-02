@@ -17,13 +17,12 @@ class ExcelGoalSeek
 
     public function __construct(LoggerInterface $logger = null)
     {
-        $this->debugEnabled = $logger === null ? false : true;
         $this->logger = $logger;
     }
 
     private function debug($message, array $context = []): void
     {
-        if ($this->debugEnabled) {
+        if ($this->debugEnabled instanceof LoggerInterface) {
             $this->logger->debug($message, $context);
         }
     }
@@ -48,7 +47,8 @@ class ExcelGoalSeek
 
         $max_loops_round++;
 
-        $maximum_acceptable_difference = 0.1;//If goal found has more than this difference, return null as it is not found
+        //If goal found has more than this difference, return null as it is not found
+        $maximum_acceptable_difference = 0.1;
 
         if ($max_loops_round > 100) {
             $this->debug('Goal never reached');
@@ -102,26 +102,7 @@ class ExcelGoalSeek
         }
 
         //First iteration, try with zero
-        if ($lock_min['num'] === null && $lock_max['num'] === null) {
-            $aux_obj_num = $start_from;
-        } //Lower limit found, searching higher limit with * 10
-        elseif ($lock_min['num'] !== null && $lock_max['num'] === null) {
-            if ($lock_min['num'] == $start_from) {
-                $aux_obj_num = 1;
-            } else {
-                $aux_obj_num = $lock_min['num'] * (10 / $incremental_modifier);
-            }
-        } //Higher limit found, searching lower limit with * -10
-        elseif ($lock_min['num'] === null && $lock_max['num'] !== null) {
-            if ($lock_max['num'] == $start_from) {
-                $aux_obj_num = -1;
-            } else {
-                $aux_obj_num = $lock_max['num'] * (10 / $incremental_modifier);
-            }
-        } //I have both limits, searching between them without decimals
-        elseif ($lock_min['num'] !== null && $lock_max['num'] !== null) {
-            $aux_obj_num = round(($lock_min['num'] + $lock_max['num']) / 2);
-        }
+        $aux_obj_num = $this->getAux_obj_num($lock_min['num'], $lock_max['num'], $start_from, $incremental_modifier);
 
         if ($aux_obj_num != $start_from) {
             $aux_obj = $this->$functionGS($aux_obj_num);
@@ -208,5 +189,38 @@ class ExcelGoalSeek
             $lock_max['goal'] = $aux_obj;
         }
         return [$lock_min, $lock_max];
+    }
+
+    /**
+     * @param $lockMinNum
+     * @param $lockMaxNum
+     * @param $start_from
+     * @param $incremental_modifier
+     * @return float|int|mixed
+     */
+    private function getAux_obj_num($lockMinNum, $lockMaxNum, $start_from, $incremental_modifier)
+    {
+        $aux_obj_num = null;
+        if ($lockMinNum === null && $lockMaxNum === null) {
+            $aux_obj_num = $start_from;
+        } //Lower limit found, searching higher limit with * 10
+        elseif ($lockMinNum !== null && $lockMaxNum === null) {
+            if ($lockMinNum == $start_from) {
+                $aux_obj_num = 1;
+            } else {
+                $aux_obj_num = $lockMinNum * (10 / $incremental_modifier);
+            }
+        } //Higher limit found, searching lower limit with * -10
+        elseif ($lockMinNum === null && $lockMaxNum !== null) {
+            if ($lockMaxNum == $start_from) {
+                $aux_obj_num = -1;
+            } else {
+                $aux_obj_num = $lockMaxNum * (10 / $incremental_modifier);
+            }
+        } //I have both limits, searching between them without decimals
+        elseif ($lockMinNum !== null && $lockMaxNum !== null) {
+            $aux_obj_num = round(($lockMinNum + $lockMaxNum) / 2);
+        }
+        return $aux_obj_num;
     }
 }
