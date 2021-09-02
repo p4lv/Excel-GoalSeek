@@ -56,10 +56,6 @@ $ phpunit
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
-## Security
-
-If you discover any security related issues, please email djimenez@e-datta.com instead of using the issue tracker.
-
 ## Credits
 
 - [David Jiménez](https://github.com/davidjr82)
