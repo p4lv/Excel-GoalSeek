@@ -31,23 +31,12 @@ build:
         override:
             - composer run-script build-scrutinizer # will launch "composer install" but for CI (no loader optimization compared to the build command for production for instance)
 
-    environment:
-        # Depends of what the project requires
-        rabbitmq: true/false
-        mysql: true/false
-        postgresql: true/false
-        mongodb: true/false
-        elasticsearch: true/false
-        redis: true/false
-        memcached: true/false
-        neo4j: true/false
-        variables:
-            SYMFONY_ENV: 'test' # In case project use Environment variables
     tests:
         override:
             -
-                command: composer run-script codestyle        # Or "./vendor/bin/phpcs". Anyway do not use the scrutinizer command "phpcs-run" as if some cs error are found this command is not considered as failed command
-                command: composer run-script coverage-clover  # Or "./vendor/bin/phpunit --coverage-clover=build/coverage/clover.xml"
+#                command: composer run-script codestyle        # Or "./vendor/bin/phpcs". Anyway do not use the scrutinizer command "phpcs-run" as if some cs error are found this command is not considered as failed command
+#                command: composer run-script coverage-clover  # Or "./vendor/bin/phpunit --coverage-clover=build/coverage/clover.xml"
+                command: ./vendor/bin/phpunit --coverage-clover=build/coverage/clover.xml
                 idle_timeout: 1200
                 coverage:
                     file: 'build/coverage/clover.xml'
