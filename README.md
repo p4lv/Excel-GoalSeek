@@ -2,6 +2,8 @@
 
 Utility to emulate goalseek function in PHP. This fork was made for very specific project, and there is no promise to keep any BC. 
 
+This library is a fork of [PHP-Excel-GoalSeek](https://github.com/juanjomip/PHP-Excel-GoalSeek)
+
 ## Install
 
 Use package from packagist.
