@@ -40,18 +40,11 @@ class ExcelGoalSeek
         $start_from = 0.1
     )
     {
-        if (empty($functionGS)) {
-            throw new ExcelGoalSeekException('Function callback expected');
-        }
-
-        $max_loops_round++;
-
         //If goal found has more than this difference, return null as it is not found
         $maximum_acceptable_difference = 0.1;
+        $max_loops_round++;
 
-        if ($max_loops_round > 100) {
-            throw new GoalNeverReached();
-        }
+        $this->checkLimitRestriction($functionGS, $max_loops_round);
 
         $this->debug(sprintf("Iteration %d; min value = %s; max value = %s; slope %s", $max_loops_round, $lock_min['num'], $lock_max['num'], $slope));
 
@@ -213,5 +206,21 @@ class ExcelGoalSeek
             $aux_obj_num = round(($lockMinNum + $lockMaxNum) / 2);
         }
         return $aux_obj_num;
+    }
+
+    /**
+     * @param string $functionGS
+     * @param int $max_loops_round
+     * @throws ExcelGoalSeekException
+     */
+    private function checkLimitRestriction(string $functionGS, int $max_loops_round): void
+    {
+        if (empty($functionGS)) {
+            throw new ExcelGoalSeekException('Function callback expected');
+        }
+
+        if ($max_loops_round > 100) {
+            throw new GoalNeverReached();
+        }
     }
 }
