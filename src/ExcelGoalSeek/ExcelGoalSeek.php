@@ -9,7 +9,6 @@ use Psr\Log\LoggerInterface;
 
 class ExcelGoalSeek
 {
-    private $debugEnabled;
     /**
      * @var LoggerInterface|null
      */
@@ -22,7 +21,7 @@ class ExcelGoalSeek
 
     private function debug($message, array $context = []): void
     {
-        if ($this->debugEnabled instanceof LoggerInterface) {
+        if ($this->logger instanceof LoggerInterface) {
             $this->logger->debug($message, $context);
         }
     }
