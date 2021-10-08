@@ -19,39 +19,31 @@ composer require p4/excel-goalseek
 ## Usage
 
 ``` php
-//First, wrap your functions in your own class that extends PHPExcelGoalSeek
-class GoalSeek extends \davidjr82\PHPExcelGoalSeek\PHPExcelGoalSeek {
+//Define function which for which the value should be found
+$callbackTest = function callbackTest($input) {
+    $inputForCallbackTest2 = $input * 8;
+    return $inputForCallbackTest2 - 12;
+};
 
-    function callbackTest($input) {
-        $inputForCallbackTest2 = $input * 8;
-        return $this->callbackTest2($inputForCallbackTest2);
-    }
-
-    function callbackTest2($input) {
-        $solution = $input - 12;
-        return $solution;
-    }
-}
-
-//Instantiate your class
-$goalseek = new GoalSeek();
+//Instantiate goal seek class
+$goalseek = new ExcelGoalSeek();
 //$goalseek->debug = true;
 
 //I want to know which input needs callbackTest to give me 301
 $expected_result = 300;
 
 //Calculate the input to get you goal, with accuracy
-$input = $goalseek->calculate('callbackTest', $expected_result, 5);
+$input = $goalseek->calculate($callbackTest, $expected_result, 5);
 
 //Voilá!
 echo "\$input: " . $input . "<br />";
 
 //Let's test our input it is close
-$actual_result = $goalseek->callbackTest($input);
+$actual_result = $callbackTest($input);
 //Searched result of function
-echo "Searched result of callbackTest(\$input) = " . $expected_result . "<br />";
+echo "Searched result of $callbackTest(\$input) = " . $expected_result . "<br />";
 //Actual result of function with calculated goalseek
-echo "Actual result of callbackTest(" . $input . ") = " . $actual_result . "<br />";
+echo "Actual result of $callbackTest(" . $input . ") = " . $actual_result . "<br />";
 //If difference is too high, you can improve the class and send me it your modifications ;)
 echo "Difference = " . ($actual_result - $expected_result);
 ```

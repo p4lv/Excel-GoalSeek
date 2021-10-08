@@ -8,3 +8,6 @@ All Notable changes to `Excel-GoalSeek` will be documented in this file
 - increased min version of php
 - update to the latest phpunit
 
+## 2021-10-08
+
+- made function to test against a parameter instead of private method 
