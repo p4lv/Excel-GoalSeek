@@ -2,7 +2,6 @@
 
 namespace P4lv\ExcelGoalSeek;
 
-use P4lv\ExcelGoalSeek\Exception\ExcelGoalSeekException;
 use P4lv\ExcelGoalSeek\Exception\GoalNeverReached;
 use P4lv\ExcelGoalSeek\Exception\GoalReachedNotEnough;
 use Psr\Log\LoggerInterface;
@@ -27,7 +26,7 @@ class ExcelGoalSeek
     }
 
     public function calculate(
-        $functionGS,
+        callable $function,
         $goal,
         $decimal_places,
         $incremental_modifier = 1,
@@ -44,7 +43,7 @@ class ExcelGoalSeek
         $maximum_acceptable_difference = 0.1;
         $max_loops_round++;
 
-        $this->checkLimitRestriction($functionGS, $max_loops_round);
+        $this->checkLimitRestriction($max_loops_round);
 
         $this->debug(sprintf("Iteration %d; min value = %s; max value = %s; slope %s", $max_loops_round, $lock_min['num'], $lock_max['num'], $slope));
 
@@ -66,7 +65,7 @@ class ExcelGoalSeek
                     $max_loops_dec++;
 
                     $aux_obj_num = round(($lock_min['num'] + $lock_max['num']) / 2, $decimal);
-                    $aux_obj = $this->$functionGS($aux_obj_num);
+                    $aux_obj = $function($aux_obj_num);
 
                     $this->debug(sprintf("Decimal iteration %d; min value = %s; max value = %s; value %s", $max_loops_dec, $lock_min['num'], $lock_max['num'], $aux_obj));
 
@@ -92,12 +91,12 @@ class ExcelGoalSeek
         //First iteration, try with zero
         $aux_obj_num = $this->getAuxObjNum($lock_min['num'], $lock_max['num'], $start_from, $incremental_modifier);
 
-        $aux_obj = $this->$functionGS($aux_obj_num);
+        $aux_obj = $function($aux_obj_num);
 
         $this->debug(sprintf("Testing (with initial value) %s%d with value %s", $aux_obj_num != $start_from ? '' : '(with initial value)', $aux_obj_num, $aux_obj));
 
         if ($slope === null) {
-            $aux_slope = $this->$functionGS($aux_obj_num + 0.1);
+            $aux_slope = $function($aux_obj_num + 0.1);
 
             if (is_nan($aux_slope) || is_nan($aux_obj)) {
                 $slope = null; //If slope is null
@@ -111,12 +110,12 @@ class ExcelGoalSeek
         //Test if formule can give me non valid values, i.e.: sqrt of negative value
         if (!is_nan($aux_obj)) {
             //Is goal without decimals?
-            list($lock_min, $lock_max) = $this->lookWithoutDecimals($aux_obj, $goal, $aux_obj_num, $lock_min, $lock_max, $slope);
+            [$lock_min, $lock_max] = $this->lookWithoutDecimals($aux_obj, $goal, $aux_obj_num, $lock_min, $lock_max, $slope);
         } else {
             if (($lock_min['num'] === null && $lock_max['num'] === null) || $randomized) {
                 $nuevo_start_from = random_int(-500, 500);
 
-                return $this->calculate($functionGS, $goal, $decimal_places, $incremental_modifier + 1, $max_loops_round, $max_loops_dec, $lock_min, $lock_max, $slope, true, $nuevo_start_from);
+                return $this->calculate($function, $goal, $decimal_places, $incremental_modifier + 1, $max_loops_round, $max_loops_dec, $lock_min, $lock_max, $slope, true, $nuevo_start_from);
             } //First iteration is null
 
             if ($lock_min['num'] !== null && abs(abs($aux_obj_num) - abs($lock_min['num'])) < 1) {
@@ -126,10 +125,10 @@ class ExcelGoalSeek
                 $lock_min['num'] = $aux_obj_num;
             }
 
-            return $this->calculate($functionGS, $goal, $decimal_places, $incremental_modifier + 1, $max_loops_round, $max_loops_dec, $lock_min, $lock_max, $slope, $randomized, $start_from);
+            return $this->calculate($function, $goal, $decimal_places, $incremental_modifier + 1, $max_loops_round, $max_loops_dec, $lock_min, $lock_max, $slope, $randomized, $start_from);
         }
 
-        return $this->calculate($functionGS, $goal, $decimal_places, $incremental_modifier, $max_loops_round, $max_loops_dec, $lock_min, $lock_max, $slope, $randomized, $start_from);
+        return $this->calculate($function, $goal, $decimal_places, $incremental_modifier, $max_loops_round, $max_loops_dec, $lock_min, $lock_max, $slope, $randomized, $start_from);
     }
 
     private function lookWithoutDecimals($aux_obj, $goal, $aux_obj_num, $lock_min, $lock_max, $slope): array
@@ -209,16 +208,10 @@ class ExcelGoalSeek
     }
 
     /**
-     * @param string $functionGS
      * @param int $max_loops_round
-     * @throws ExcelGoalSeekException
      */
-    private function checkLimitRestriction(string $functionGS, int $max_loops_round): void
+    private function checkLimitRestriction(int $max_loops_round): void
     {
-        if (empty($functionGS)) {
-            throw new ExcelGoalSeekException('Function callback expected');
-        }
-
         if ($max_loops_round > 100) {
             throw new GoalNeverReached();
         }
